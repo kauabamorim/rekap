@@ -1,0 +1,44 @@
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Agency {
+  id         String      @id @default(cuid())
+  name       String
+  email      String      @unique
+  password   String
+  createdAt  DateTime    @default(now())
+  adAccounts AdAccount[]
+  reports    Report[]
+}
+
+model AdAccount {
+  id            String   @id @default(cuid())
+  metaAccountId String
+  name          String
+  accessToken   String
+  agencyId      String
+  agency        Agency   @relation(fields: [agencyId], references: [id])
+  reports       Report[]
+  createdAt     DateTime @default(now())
+
+  @@unique([metaAccountId, agencyId])
+}
+
+model Report {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  dateFrom    DateTime
+  dateTo      DateTime
+  data        Json
+  agencyId    String
+  agency      Agency    @relation(fields: [agencyId], references: [id])
+  adAccountId String
+  adAccount   AdAccount @relation(fields: [adAccountId], references: [id])
+  createdAt   DateTime  @default(now())
+}
